@@ -39,7 +39,7 @@ function dayLabel(value) {
 }
 
 export default function Dashboard() {
-  const { conversations, records, overrides, activity, loadAllDemoData } = useApp();
+  const { conversations, records, overrides, activity } = useApp();
   const [selectedPerson, setSelectedPerson] = useState('all');
   const [selectedSourceType, setSelectedSourceType] = useState('all');
 
@@ -52,13 +52,8 @@ export default function Dashboard() {
         />
         <EmptyState
           title="No source records loaded"
-          text="Load the supplied demo state or import the initial delivery to get started."
-          action={(
-            <div className="row" style={{ justifyContent: 'center' }}>
-              <button className="btn primary" onClick={loadAllDemoData}>Load demo state</button>
-              <Link className="btn" to="/imports">Open imports</Link>
-            </div>
-          )}
+          text="Import a source batch to populate your dashboard. The supplied initial and update batches are ready on the Imports page."
+          action={<Link className="btn primary" to="/imports">Open imports</Link>}
         />
       </>
     );

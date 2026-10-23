@@ -15,9 +15,9 @@ Open the local URL printed by Vite. Build a static production bundle with `npm r
 
 ## Replay the supplied batches
 
-Open **Imports & Replay History**. The buttons replay the batches embedded in `src/data/bundledBatches.js`; the drop zones also accept the supplied JSON files.
+The app opens with an empty workspace. Open **Imports & Replay History** to load the sample batches embedded in `src/data/bundledBatches.js` or upload the supplied JSON files. Imported records and manager changes persist in this browser's local storage.
 
-1. Click **Clear all data**, then **Load 01_initial.json**. Expect 44 unique source records and 17 with usable text.
+1. The app starts empty. If a previous replay is still present, click **Clear all data** first; then click **Load 01_initial.json**. Expect 44 unique source records and 17 with usable text.
 2. Load the initial batch again. The duplicate batch ID should be skipped without adding records.
 3. Open M07 and save a manager route override with a reason.
 4. Load **02_update.json**. Expect 44 records, 18 with usable text, and M07 at revision 2 with its manager route preserved and analysis marked for review.

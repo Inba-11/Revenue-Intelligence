@@ -32,7 +32,7 @@ function filtersFromSearch(search) {
 }
 
 export default function Inbox() {
-  const { conversations, loadAllDemoData } = useApp();
+  const { conversations } = useApp();
   const location = useLocation();
   const navigate = useNavigate();
   const [filters, setFilters] = useState(() => filtersFromSearch(location.search));
@@ -98,17 +98,8 @@ export default function Inbox() {
         <PageHeader title="Inbox" subtitle="No conversations imported yet." />
         <EmptyState
           title="Inbox is empty"
-          text="Upload an initial JSON export on the Imports page or load the demo dataset to get started."
-          action={
-            <div className="row" style={{ gap: 8 }}>
-              <button className="btn primary" onClick={loadAllDemoData}>
-                Load Demo Dataset
-              </button>
-              <Link className="btn" to="/imports">
-                Go to Imports
-              </Link>
-            </div>
-          }
+          text="Import a source batch to review conversations. The supplied initial and update batches are ready on the Imports page."
+          action={<Link className="btn primary" to="/imports">Go to Imports</Link>}
         />
       </>
     );

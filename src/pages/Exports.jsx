@@ -18,7 +18,7 @@ export default function Exports() {
         />
         <EmptyState
           title="No conversations to export"
-          text="Import conversation data or load the demo dataset first."
+          text="Import a source batch first. The supplied initial and update batches are ready on the Imports page."
           action={<Link className="btn primary" to="/imports">Go to Imports</Link>}
         />
       </>

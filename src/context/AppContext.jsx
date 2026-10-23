@@ -143,7 +143,7 @@ export function AppProvider({ children }) {
     pushActivity(`Status marked as "${status}" for record ${key}.`);
   }, [pushActivity]);
 
-  // ── 1-click Demo Load Helpers ─────────────────────────────────────────────
+  // ── Bundled batches are imported only when requested ───────────────────────
   const loadInitialBatch = useCallback(() => {
     importBatch(INITIAL_BATCH, '01_initial.json');
   }, [importBatch]);
@@ -151,47 +151,6 @@ export function AppProvider({ children }) {
   const loadUpdateBatch = useCallback(() => {
     importBatch(UPDATE_BATCH, '02_update.json');
   }, [importBatch]);
-
-  const loadAllDemoData = useCallback(() => {
-    // Replay initial then update in sequence
-    const r1 = applyBatch(INITIAL_BATCH, {}, []);
-    const r2 = applyBatch(UPDATE_BATCH, r1.records, [r1.batchId]);
-
-    setRecordsRaw(r2.records);
-    saveRecords(r2.records);
-
-    const history = [
-      {
-        id: `imp-2`,
-        batchId: 'update-002',
-        name: '02_update.json',
-        type: 'Update Batch',
-        date: new Date().toLocaleString(),
-        records: UPDATE_BATCH.records.length,
-        added: r2.added,
-        updated: r2.updated,
-        skipped: r2.skipped,
-        status: 'Replayed',
-      },
-      {
-        id: `imp-1`,
-        batchId: 'initial-001',
-        name: '01_initial.json',
-        type: 'Initial Batch',
-        date: new Date().toLocaleString(),
-        records: INITIAL_BATCH.records.length,
-        added: r1.added,
-        updated: r1.updated,
-        skipped: r1.skipped,
-        status: 'Replayed',
-      },
-    ];
-    setImportHistoryRaw(history);
-    saveImports(history);
-
-    notify('Loaded demo state: Initial + Update batches (44 records, 18 usable texts).');
-    pushActivity('Demonstration dataset replayed: Initial delivery + Update delivery.');
-  }, [notify, pushActivity]);
 
   // ── Reset everything ───────────────────────────────────────────────────────
   const resetAll = useCallback(() => {
@@ -201,31 +160,33 @@ export function AppProvider({ children }) {
     setImportHistoryRaw([]);
     setActivityRaw([]);
     setActionChecksRaw({});
-    notify('All records and overrides cleared.');
-    pushActivity('Application state reset to clean start.');
-  }, [notify, pushActivity]);
+    notify('Workspace cleared. Import a batch to get started.');
+  }, [notify]);
 
   // ── Boot sequence ──────────────────────────────────────────────────────────
   useEffect(() => {
     const stored = load();
-    const hasExistingRecords = stored.records && Object.keys(stored.records).length > 0;
 
-    if (hasExistingRecords) {
-      const refreshedRecords = Object.fromEntries(
-        Object.entries(stored.records).map(([key, record]) => [key, refreshStoredRecord(record)]),
-      );
-      setRecordsRaw(refreshedRecords);
-      saveRecords(refreshedRecords);
-      if (stored.overrides) setOverridesRaw(stored.overrides);
-      if (stored.imports) setImportHistoryRaw(stored.imports);
-      if (stored.activity) setActivityRaw(stored.activity);
-      if (stored.actions) setActionChecksRaw(stored.actions);
-    } else {
-      // Per ASSIGNMENT.md page 4: "Your submitted app should open in the final post-update state"
-      loadAllDemoData();
-    }
+    // Older builds silently seeded both sample batches on first visit. Remove
+    // that generated state once, while preserving records imported through the UI.
+    const hadAutomaticDemoSeed = stored.imports.some((entry) => (
+      (entry.id === 'imp-1' && entry.batchId === 'initial-001')
+      || (entry.id === 'imp-2' && entry.batchId === 'update-002')
+    ));
+    if (hadAutomaticDemoSeed) clearAll();
+
+    const restoredRecords = hadAutomaticDemoSeed ? {} : stored.records;
+    const refreshedRecords = Object.fromEntries(
+      Object.entries(restoredRecords).map(([key, record]) => [key, refreshStoredRecord(record)]),
+    );
+    setRecordsRaw(refreshedRecords);
+    if (Object.keys(refreshedRecords).length > 0) saveRecords(refreshedRecords);
+    setOverridesRaw(hadAutomaticDemoSeed ? {} : stored.overrides);
+    setImportHistoryRaw(hadAutomaticDemoSeed ? [] : stored.imports);
+    setActivityRaw(hadAutomaticDemoSeed ? [] : stored.activity);
+    setActionChecksRaw(hadAutomaticDemoSeed ? {} : stored.actions);
     setBooted(true);
-  }, [loadAllDemoData]);
+  }, []);
 
   // ── Derived conversation list ──────────────────────────────────────────────
   const conversations = useMemo(() => {
@@ -284,7 +245,6 @@ export function AppProvider({ children }) {
     updateStatus,
     loadInitialBatch,
     loadUpdateBatch,
-    loadAllDemoData,
     resetAll,
     doDownloadGroup,
     doGenerateAll,
@@ -296,7 +256,7 @@ export function AppProvider({ children }) {
     records, conversations, overrides, importHistory, activity, actionChecks, metrics, exportGroups,
     booted, navOpen, toast, notify,
     importBatch, importFile, overrideRoute, resetRouteOverride, toggleAction, updateStatus,
-    loadInitialBatch, loadUpdateBatch, loadAllDemoData, resetAll,
+    loadInitialBatch, loadUpdateBatch, resetAll,
     doDownloadGroup, doGenerateAll, doDownloadManifest,
   ]);
 

@@ -11,7 +11,6 @@ export default function Imports() {
     importHistory,
     loadInitialBatch,
     loadUpdateBatch,
-    loadAllDemoData,
     resetAll,
   } = useApp();
 
